@@ -1,5 +1,6 @@
 const orderCalculator = require('./orderCalculator');
 const { generateOrderNumber } = require('./orderNumberGenerator');
+const countItems = require('./itemCounter'); // Импорт функции подсчета позиций
 
 // Функция для экранирования символов в MarkdownV2
 const escapeMarkdownV2 = (text) => {
@@ -14,11 +15,12 @@ const sendOrderToBarista = (bot, username, order, orderNumber) => {
     const escapedUsername = escapeMarkdownV2(username || 'User');
     const userLink = `[${escapedUsername}](https://t.me/${escapedUsername})`;
 
+    // Применяем функцию подсчета позиций
+    const countedItems = countItems(order.split('\n')
+        .filter(item => item.trim() !== '' && item !== 'undefined'));
+
     // Форматируем заказ и экранируем символы
-    const formattedOrder = order.split('\n')
-        .filter(item => item.trim() !== '' && item !== 'undefined')
-        .map(item => item.includes('Order Number') ? '' : `\\- ${escapeMarkdownV2(item.trim())}`)
-        .join('\n');
+    const formattedOrder = countedItems.map(item => `\\- ${escapeMarkdownV2(item)}`).join('\n');
 
     // Формируем строку с номером заказа
     const orderNumberString = `Order Number: ${orderNumber || 'Not Generated'}`;
